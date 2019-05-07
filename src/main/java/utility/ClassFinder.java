@@ -7,6 +7,7 @@ import java.util.List;
 
 public class ClassFinder {
 
+    private static final char PKG_SEPARATOR = '.';
     private static final String START_DIRECTORY = "src/main/java/";
 
     public List<String> find(String packageName) {
@@ -16,7 +17,7 @@ public class ClassFinder {
         Arrays.stream(files)
                 .forEach(file -> {
                     String className = file.getName().split("\\.")[0];
-                    classList.add(className);
+                    classList.add(packageName+PKG_SEPARATOR+className);
                 });
         return classList;
     }
