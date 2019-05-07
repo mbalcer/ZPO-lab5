@@ -4,6 +4,8 @@ import java.time.LocalDate;
 
 public class Person {
 
+    public enum Color { BLUE, GREEN, BROWN, GRAY, YELLOW }
+
     private int id;
     private String fname;
     private String lname;
