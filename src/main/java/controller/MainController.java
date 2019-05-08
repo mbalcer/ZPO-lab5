@@ -59,6 +59,7 @@ public class MainController {
     private ObservableList<String> classObservableList;
     private ObservableList<TableFields> fieldObservableList;
     private ObservableList<Object> objectsList;
+    private Class<?> selectedClass;
 
     public void initialize() {
         addDataToTableFields();
@@ -69,9 +70,8 @@ public class MainController {
     @FXML
     void chooseClass() {
         String className = cbClassName.getSelectionModel().getSelectedItem();
-        Class<?> newClass = null;
         try {
-            newClass = Class.forName(className);
+            selectedClass = Class.forName(className);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -79,7 +79,7 @@ public class MainController {
         objectsList = FXCollections.observableArrayList();
 
         try {
-            Object newObject = newClass.newInstance();
+            Object newObject = selectedClass.newInstance();
             objectsList.add(newObject);
             fillObjectsComboBox();
             cbObject.getSelectionModel().select(newObject);
@@ -89,8 +89,8 @@ public class MainController {
             e.printStackTrace();
         }
 
-        Method[] methods = newClass.getDeclaredMethods();
-        Field[] fields = newClass.getDeclaredFields();
+        Method[] methods = selectedClass.getDeclaredMethods();
+        Field[] fields = selectedClass.getDeclaredFields();
 
         fillFieldTable(fields, methods, objectsList.get(0));
     }
@@ -107,12 +107,22 @@ public class MainController {
 
     @FXML
     void createNewObject() {
-
+        try {
+            Object newObject = selectedClass.newInstance();
+            objectsList.add(newObject);
+            fillObjectsComboBox();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
     void deleteObject() {
-
+        Object deleteObject = cbObject.getSelectionModel().getSelectedItem();
+        objectsList.remove(deleteObject);
+        fillObjectsComboBox();
     }
 
     @FXML
