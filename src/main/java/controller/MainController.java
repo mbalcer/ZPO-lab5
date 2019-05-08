@@ -39,7 +39,7 @@ public class MainController {
     private TableColumn<TableFields, Object> tcValue;
 
     @FXML
-    private ComboBox<?> cbObject;
+    private ComboBox<Object> cbObject;
 
     @FXML
     private Button btnCreateObject;
@@ -58,8 +58,7 @@ public class MainController {
 
     private ObservableList<String> classObservableList;
     private ObservableList<TableFields> fieldObservableList;
-
-    private Object object;
+    private ObservableList<Object> objectsList;
 
     public void initialize() {
         addDataToTableFields();
@@ -77,8 +76,13 @@ public class MainController {
             e.printStackTrace();
         }
 
+        objectsList = FXCollections.observableArrayList();
+
         try {
-            object = newClass.newInstance();
+            Object newObject = newClass.newInstance();
+            objectsList.add(newObject);
+            fillObjectsComboBox();
+            cbObject.getSelectionModel().select(newObject);
         } catch (InstantiationException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
@@ -88,7 +92,7 @@ public class MainController {
         Method[] methods = newClass.getDeclaredMethods();
         Field[] fields = newClass.getDeclaredFields();
 
-        fillFieldTable(fields, methods);
+        fillFieldTable(fields, methods, objectsList.get(0));
     }
 
     @FXML
@@ -139,7 +143,7 @@ public class MainController {
         cbClassName.setItems(classObservableList);
     }
 
-    private void fillFieldTable(Field[] fields, Method[] methods) {
+    private void fillFieldTable(Field[] fields, Method[] methods, Object object) {
         fieldObservableList.clear();
         AtomicInteger id = new AtomicInteger(1);
         Arrays.stream(fields)
@@ -157,6 +161,10 @@ public class MainController {
                     fieldObservableList.add(new TableFields(id.getAndIncrement(), field.getName(), fieldValue));
                 });
         tableField.setItems(fieldObservableList);
+    }
+
+    private void fillObjectsComboBox() {
+        cbObject.setItems(objectsList);
     }
 
     private void addDataToTableFields() {
