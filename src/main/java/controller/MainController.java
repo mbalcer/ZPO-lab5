@@ -1,5 +1,6 @@
 package controller;
 
+import annotation.Named;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -26,12 +27,15 @@ public class MainController {
     private TableView<TableFields> tableField;
 
     @FXML
+    @Named("No.")
     private TableColumn<TableFields, Integer> tcNo;
 
     @FXML
+    @Named("Field")
     private TableColumn<TableFields, String> tcField;
 
     @FXML
+    @Named("Value")
     private TableColumn<TableFields, Object> tcValue;
 
     @FXML
@@ -56,6 +60,12 @@ public class MainController {
     private ObservableList<TableFields> fieldObservableList;
 
     private Object object;
+
+    public void initialize() {
+        addDataToTableFields();
+        fillClassComboBox();
+        applyAnnotations();
+    }
 
     @FXML
     void chooseClass() {
@@ -106,9 +116,20 @@ public class MainController {
 
     }
 
-    public void initialize() {
-        addDataToTableFields();
-        fillClassComboBox();
+    private void applyAnnotations() {
+        Field[] fieldsController = this.getClass().getDeclaredFields();
+        Arrays.stream(fieldsController)
+                .filter(field -> field.isAnnotationPresent(Named.class))
+                .filter(field -> field.getType().equals(TableColumn.class))
+                .forEach(field -> {
+                    Named nameAnnotation = field.getAnnotation(Named.class);
+                    try {
+                        TableColumn tableColumn = (TableColumn) field.get(this);
+                        tableColumn.setText(nameAnnotation.value());
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
+                });
     }
 
     private void fillClassComboBox() {
@@ -123,7 +144,7 @@ public class MainController {
         AtomicInteger id = new AtomicInteger(1);
         Arrays.stream(fields)
                 .filter(field -> Arrays.stream(methods)
-                        .filter(method -> method.getName().startsWith("get"))
+                        .filter(method -> method.getName().startsWith("get") || method.getName().startsWith("is"))
                         .anyMatch(method -> method.getName().toLowerCase().endsWith(field.getName().toLowerCase())))
                 .forEach(field -> {
                     field.setAccessible(true);
@@ -145,5 +166,7 @@ public class MainController {
         tcValue.setCellValueFactory(new PropertyValueFactory<>("value"));
         tableField.setItems(fieldObservableList);
     }
+
+
 
 }
