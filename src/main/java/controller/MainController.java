@@ -96,13 +96,12 @@ public class MainController {
     }
 
     @FXML
-    void chooseField() {
-
-    }
-
-    @FXML
     void chooseObject() {
+        Object selectedObject = cbObject.getSelectionModel().getSelectedItem();
+        Method[] methods = selectedObject.getClass().getDeclaredMethods();
+        Field[] fields = selectedObject.getClass().getDeclaredFields();
 
+        fillFieldTable(fields, methods, selectedObject);
     }
 
     @FXML
@@ -123,6 +122,12 @@ public class MainController {
         Object deleteObject = cbObject.getSelectionModel().getSelectedItem();
         objectsList.remove(deleteObject);
         fillObjectsComboBox();
+    }
+
+
+    @FXML
+    void chooseField() {
+
     }
 
     @FXML
