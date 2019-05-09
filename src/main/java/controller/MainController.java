@@ -66,6 +66,7 @@ public class MainController {
     public void initialize() {
         addDataToTableFields();
         fieldsInComboBox = FXCollections.observableArrayList();
+        objectsList = FXCollections.observableArrayList();
         fillClassComboBox();
         applyAnnotations();
     }
@@ -79,33 +80,30 @@ public class MainController {
             e.printStackTrace();
         }
 
-        objectsList = FXCollections.observableArrayList();
+        objectsList.clear();
+
+        Method[] methods = selectedClass.getDeclaredMethods();
+        Field[] fields = selectedClass.getDeclaredFields();
 
         try {
-            Object newObject = selectedClass.newInstance();
-            objectsList.add(newObject);
-            fillObjectsComboBox();
-            cbObject.getSelectionModel().select(newObject);
+            fillFieldTable(fields, methods, selectedClass.newInstance());
         } catch (InstantiationException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
-
-        Method[] methods = selectedClass.getDeclaredMethods();
-        Field[] fields = selectedClass.getDeclaredFields();
-
-        fillFieldTable(fields, methods, objectsList.get(0));
         fillFieldsComboBox(fields);
     }
 
     @FXML
     void chooseObject() {
         Object selectedObject = cbObject.getSelectionModel().getSelectedItem();
-        Method[] methods = selectedObject.getClass().getDeclaredMethods();
-        Field[] fields = selectedObject.getClass().getDeclaredFields();
+        if (selectedObject != null) {
+            Method[] methods = selectedObject.getClass().getDeclaredMethods();
+            Field[] fields = selectedObject.getClass().getDeclaredFields();
 
-        fillFieldTable(fields, methods, selectedObject);
+            fillFieldTable(fields, methods, selectedObject);
+        }
     }
 
     @FXML
