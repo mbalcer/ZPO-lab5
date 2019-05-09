@@ -14,6 +14,7 @@ import table.TableFields;
 import utility.ClassFinder;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -48,7 +49,7 @@ public class MainController {
     private Button btnDeleteObject;
 
     @FXML
-    private ComboBox<?> cbField;
+    private ComboBox<Field> cbField;
 
     @FXML
     private TextField tfValue;
@@ -58,11 +59,13 @@ public class MainController {
 
     private ObservableList<String> classObservableList;
     private ObservableList<TableFields> fieldObservableList;
+    private ObservableList<Field> fieldsInComboBox;
     private ObservableList<Object> objectsList;
     private Class<?> selectedClass;
 
     public void initialize() {
         addDataToTableFields();
+        fieldsInComboBox = FXCollections.observableArrayList();
         fillClassComboBox();
         applyAnnotations();
     }
@@ -93,6 +96,7 @@ public class MainController {
         Field[] fields = selectedClass.getDeclaredFields();
 
         fillFieldTable(fields, methods, objectsList.get(0));
+        fillFieldsComboBox(fields);
     }
 
     @FXML
@@ -124,7 +128,6 @@ public class MainController {
         fillObjectsComboBox();
     }
 
-
     @FXML
     void chooseField() {
 
@@ -132,7 +135,35 @@ public class MainController {
 
     @FXML
     void setValueToField() {
+        Field selectedField = cbField.getSelectionModel().getSelectedItem();
+        Object selectedObject = cbObject.getSelectionModel().getSelectedItem();
+        String nameMethod = "set"+selectedField.getName().substring(0,1).toUpperCase()+selectedField.getName().substring(1);
+        Method method = null;
+        try {
+            method = selectedObject.getClass().getDeclaredMethod(nameMethod, selectedField.getType());
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
 
+        Class<?> parametrType = method.getParameterTypes()[0];
+        Object valueFieldAfterParse = null;
+
+        if (parametrType.equals(int.class))
+            valueFieldAfterParse = Integer.parseInt(tfValue.getText());
+
+        try {
+            method.invoke(selectedObject, valueFieldAfterParse);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+
+
+        Method[] methods = selectedClass.getDeclaredMethods();
+        Field[] fields = selectedClass.getDeclaredFields();
+
+        fillFieldTable(fields, methods, selectedObject);
     }
 
     private void applyAnnotations() {
@@ -176,6 +207,17 @@ public class MainController {
                     fieldObservableList.add(new TableFields(id.getAndIncrement(), field.getName(), fieldValue));
                 });
         tableField.setItems(fieldObservableList);
+    }
+
+    private void fillFieldsComboBox(Field[] fields) {
+        fieldsInComboBox.clear();
+        Arrays.stream(fields)
+                .forEach(field -> {
+                    field.setAccessible(true);
+                    fieldsInComboBox.add(field);
+                });
+
+        cbField.setItems(fieldsInComboBox);
     }
 
     private void fillObjectsComboBox() {
