@@ -16,7 +16,12 @@ import utility.ClassFinder;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainController {
@@ -143,11 +148,21 @@ public class MainController {
             e.printStackTrace();
         }
 
-        Class<?> parametrType = method.getParameterTypes()[0];
+        Class<?> parameterType = method.getParameterTypes()[0];
         Object valueFieldAfterParse = null;
 
-        if (parametrType.equals(int.class))
+        if (parameterType.equals(int.class))
             valueFieldAfterParse = Integer.parseInt(tfValue.getText());
+        else if (parameterType.equals(double.class))
+            valueFieldAfterParse = Double.parseDouble(tfValue.getText());
+        else if (parameterType.equals(String.class))
+            valueFieldAfterParse = tfValue.getText();
+        else if (parameterType.equals(LocalDate.class))
+            valueFieldAfterParse = LocalDate.parse(tfValue.getText(), DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+        else if (parameterType.isEnum())
+            valueFieldAfterParse =  Enum.valueOf((Class<Enum>) parameterType, tfValue.getText());
+        else if (parameterType.equals(boolean.class))
+            valueFieldAfterParse = Boolean.parseBoolean(tfValue.getText());
 
         try {
             method.invoke(selectedObject, valueFieldAfterParse);
