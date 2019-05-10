@@ -12,6 +12,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import table.TableFields;
 import utility.CastValue;
 import utility.ClassFinder;
+import utility.InfoDialog;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -53,11 +54,13 @@ public class MainController {
     private ObservableList<Field> fieldsInComboBox;
     private ObservableList<Object> objectsList;
     private Class<?> selectedClass;
+    private InfoDialog info;
 
     public void initialize() {
         addDataToTableFields();
         fieldsInComboBox = FXCollections.observableArrayList();
         objectsList = FXCollections.observableArrayList();
+        info = new InfoDialog();
         fillClassComboBox();
         applyAnnotations();
     }
@@ -68,7 +71,8 @@ public class MainController {
         try {
             selectedClass = Class.forName(className);
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+            info.showAlert("Error", "There isn't class with the given name");
+            return;
         }
 
         objectsList.clear();
@@ -99,10 +103,12 @@ public class MainController {
             Object newObject = selectedClass.newInstance();
             objectsList.add(newObject);
             fillObjectsComboBox();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
+        } catch (ReflectiveOperationException e) {
+            info.showAlert("Error", "Error when creating a class instance");
+            return;
+        } catch (NullPointerException e) {
+            info.showAlert("Info", "First choose class");
+            return;
         }
     }
 
@@ -117,23 +123,35 @@ public class MainController {
     void setValueToField() {
         Field selectedField = cbField.getSelectionModel().getSelectedItem();
         Object selectedObject = cbObject.getSelectionModel().getSelectedItem();
-        String nameMethod = "set"+selectedField.getName().substring(0,1).toUpperCase()+selectedField.getName().substring(1);
+        String nameMethod = null;
+        try {
+            nameMethod = "set" + selectedField.getName().substring(0, 1).toUpperCase() + selectedField.getName().substring(1);
+        } catch (NullPointerException e) {
+            info.showAlert("Info", "First enter the name of the class");
+            return;
+        }
+
         Method method = null;
         try {
             method = selectedObject.getClass().getDeclaredMethod(nameMethod, selectedField.getType());
         } catch (NoSuchMethodException e) {
-            e.printStackTrace();
+            info.showAlert("Error", "The method entered doesn't exist");
+            return;
+        } catch (NullPointerException e) {
+            info.showAlert("Error", "First choose object");
+            return;
         }
 
         Class<?> parameterType = method.getParameterTypes()[0];
         Object valueFieldAfterParse = new CastValue().cast(parameterType, tfValue.getText());
 
+        if (valueFieldAfterParse == null)
+            return;
+
         try {
             method.invoke(selectedObject, valueFieldAfterParse);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
+        } catch (ReflectiveOperationException e) {
+            info.showAlert("Error", "Error when invoking the method");
         }
 
 
