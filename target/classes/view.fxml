@@ -8,26 +8,25 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="425.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.MainController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="550.0" prefWidth="450.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.MainController">
    <children>
-      <ComboBox fx:id="cbClassName" layoutX="206.0" layoutY="27.0" onAction="#chooseClass" prefWidth="150.0" />
-      <Label layoutX="119.0" layoutY="31.0" text="Class name:" />
-      <TableView fx:id="tableField" layoutX="99.0" layoutY="69.0" prefHeight="200.0" prefWidth="300.0">
+      <ComboBox fx:id="cbClassName" layoutX="155.0" layoutY="26.0" onAction="#chooseClass" prefHeight="26.0" prefWidth="216.0" />
+      <Label layoutX="67.0" layoutY="30.0" text="Class name:" />
+      <TableView fx:id="tableField" layoutX="67.0" layoutY="70.0" prefHeight="200.0" prefWidth="300.0">
         <columns>
           <TableColumn fx:id="tcNo" prefWidth="48.79998016357422" text="no." />
           <TableColumn fx:id="tcField" prefWidth="141.59998321533203" text="field" />
             <TableColumn fx:id="tcValue" prefWidth="100.800048828125" text="value" />
         </columns>
       </TableView>
-      <ComboBox fx:id="cbObject" layoutX="112.0" layoutY="291.0" onAction="#chooseObject" prefWidth="150.0" />
-      <Label layoutX="33.0" layoutY="295.0" text="Object:" />
-      <Button fx:id="btnCreateObject" layoutX="33.0" layoutY="338.0" mnemonicParsing="false" onAction="#createNewObject" text="Create new object" />
-      <Button fx:id="btnDeleteObject" layoutX="175.0" layoutY="338.0" mnemonicParsing="false" onAction="#deleteObject" text="Delete object" />
-      <Label layoutX="304.0" layoutY="295.0" text="Field:" />
-      <Label layoutX="299.0" layoutY="329.0" text="Value:" />
-      <ComboBox fx:id="cbField" layoutX="356.0" layoutY="290.0" prefHeight="26.0" prefWidth="122.0" />
-      <TextField fx:id="tfValue" layoutX="356.0" layoutY="325.0" prefHeight="26.0" prefWidth="122.0" />
-      <Button fx:id="btnSetValue" layoutX="399.0" layoutY="364.0" mnemonicParsing="false" onAction="#setValueToField" text="Set Value" />
+      <ComboBox fx:id="cbObject" layoutX="146.0" layoutY="292.0" onMouseEntered="#chooseObject" prefHeight="26.0" prefWidth="216.0" />
+      <Label layoutX="67.0" layoutY="296.0" text="Object:" />
+      <Button fx:id="btnCreateObject" layoutX="67.0" layoutY="339.0" mnemonicParsing="false" onAction="#createNewObject" text="Create new object" />
+      <Button fx:id="btnDeleteObject" layoutX="254.0" layoutY="339.0" mnemonicParsing="false" onAction="#deleteObject" text="Delete object" />
+      <Label layoutX="72.0" layoutY="414.0" text="Field:" />
+      <Label layoutX="69.0" layoutY="448.0" text="Value:" />
+      <ComboBox fx:id="cbField" layoutX="146.0" layoutY="410.0" prefHeight="26.0" prefWidth="216.0" />
+      <TextField fx:id="tfValue" layoutX="146.0" layoutY="444.0" prefHeight="26.0" prefWidth="216.0" />
+      <Button fx:id="btnSetValue" layoutX="184.0" layoutY="489.0" mnemonicParsing="false" onAction="#setValueToField" text="Set Value" />
    </children>
 </AnchorPane>
