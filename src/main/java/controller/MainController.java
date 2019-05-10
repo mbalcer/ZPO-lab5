@@ -4,24 +4,19 @@ import annotation.Named;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import table.TableFields;
+import utility.CastValue;
 import utility.ClassFinder;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainController {
@@ -48,19 +43,10 @@ public class MainController {
     private ComboBox<Object> cbObject;
 
     @FXML
-    private Button btnCreateObject;
-
-    @FXML
-    private Button btnDeleteObject;
-
-    @FXML
     private ComboBox<Field> cbField;
 
     @FXML
     private TextField tfValue;
-
-    @FXML
-    private Button btnSetValue;
 
     private ObservableList<String> classObservableList;
     private ObservableList<TableFields> fieldObservableList;
@@ -86,17 +72,13 @@ public class MainController {
         }
 
         objectsList.clear();
+        createNewObject();
+        cbObject.getSelectionModel().select(objectsList.get(0));
 
         Method[] methods = selectedClass.getDeclaredMethods();
         Field[] fields = selectedClass.getDeclaredFields();
 
-        try {
-            fillFieldTable(fields, methods, selectedClass.newInstance());
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
+        fillFieldTable(fields, methods, objectsList.get(0));
         fillFieldsComboBox(fields);
     }
 
@@ -132,11 +114,6 @@ public class MainController {
     }
 
     @FXML
-    void chooseField() {
-
-    }
-
-    @FXML
     void setValueToField() {
         Field selectedField = cbField.getSelectionModel().getSelectedItem();
         Object selectedObject = cbObject.getSelectionModel().getSelectedItem();
@@ -149,20 +126,7 @@ public class MainController {
         }
 
         Class<?> parameterType = method.getParameterTypes()[0];
-        Object valueFieldAfterParse = null;
-
-        if (parameterType.equals(int.class))
-            valueFieldAfterParse = Integer.parseInt(tfValue.getText());
-        else if (parameterType.equals(double.class))
-            valueFieldAfterParse = Double.parseDouble(tfValue.getText());
-        else if (parameterType.equals(String.class))
-            valueFieldAfterParse = tfValue.getText();
-        else if (parameterType.equals(LocalDate.class))
-            valueFieldAfterParse = LocalDate.parse(tfValue.getText(), DateTimeFormatter.ofPattern("dd-MM-yyyy"));
-        else if (parameterType.isEnum())
-            valueFieldAfterParse =  Enum.valueOf((Class<Enum>) parameterType, tfValue.getText());
-        else if (parameterType.equals(boolean.class))
-            valueFieldAfterParse = Boolean.parseBoolean(tfValue.getText());
+        Object valueFieldAfterParse = new CastValue().cast(parameterType, tfValue.getText());
 
         try {
             method.invoke(selectedObject, valueFieldAfterParse);
@@ -244,7 +208,4 @@ public class MainController {
         tcValue.setCellValueFactory(new PropertyValueFactory<>("value"));
         tableField.setItems(fieldObservableList);
     }
-
-
-
 }
